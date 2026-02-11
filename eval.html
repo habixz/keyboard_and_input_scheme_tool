@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>键盘与输入方案工具</title>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="keywords" content="拼音,双拼,输入法,打字,键盘,布局,优化" />
+    <meta name="description" content="以汉字文稿评测双拼键盘的效率并提供优化建议" />
+    <meta name="author" content="麦可数" />
+
+    <link rel="shortcut icon" type="image/x-icon" href="shuang.png">
+    <link rel='stylesheet' href='evaluator.css'></link>
+    <script src='evaluator.js'></script>
+    <script src='hanzi_pinyin.js' defer></script>
+    <script src='exporter.js'></script>
+    <script src='char_info.js'></script>
+    <noscript>
+      <p>本网页需要支持Javascript的浏览器。</p>
+    </noscript>
+  </head>
+  <body onload='initialize_on_load()'>
+    <div class='evaluator'>
+      <h1>键盘与输入方案工具
+        <a href='https://github.com/habixz/keyboard_and_input_scheme_tool' style='font-size:0.6em;font-weight:normal;margin-left:0.5em'>
+          GitHub源码
+        </a>
+      </h1>
+      <hr/>
+
+      <div class='test-text'>
+        <table>
+          <tr>
+            <td>
+              <p/><b>测试文稿: </b>
+              <button id='stat' onclick='stat_pinyin()'>统计拼音频率</button>
+              <span id='input-text-count' class='text-count' title='统计当前文稿的非空白字符数量（去掉空格/换行/制表符）。'>字数：0</span>
+              <br/>
+              <textarea rows='6' cols='60' id='input-text'>
+              </textarea>
+              <div id='default-text-status' class='hint'></div>
+            </td>
+            <td class='stats' id='pinyin-stats-cell'>
+              <p/><b>拼音: </b>
+              <input id='pinyin-stats-filter' onchange='show_pinyin_stats("pinyin")'/>
+              <br/>
+              <textarea readonly rows='6' cols='14' id='pinyin-stats'>
+              </textarea>
+            </td>
+            <td class='stats' id='sheng-stats-cell'>
+              <p/><b>声母: </b>
+              <input id='sheng-stats-filter' onchange='show_pinyin_stats("sheng")'/>
+              <br/>
+              <textarea readonly rows='6' cols='14' id='sheng-stats'>
+              </textarea>
+            </td>
+            <td class='stats' id='yun-stats-cell'>
+              <p/><b>韵母: </b>
+              <input id='yun-stats-filter' onchange='show_pinyin_stats("yun")'/>
+              <br/>
+              <textarea readonly rows='6' cols='14' id='yun-stats'>
+              </textarea>
+            </td>
+            <td class='stats' id='letter-stats-cell'>
+              <p/><b>字母: </b>
+              <input id='letter-stats-filter' onchange='show_pinyin_stats("letter")'/>
+              <br/>
+              <textarea readonly rows='6' cols='14' id='letter-stats'>
+              </textarea>
+            </td>
+            <td class='stats' id='alphabet-stats-cell'>
+              <p/><b>符号: </b>
+              <input id='alphabet-stats-filter' onchange='show_pinyin_stats("alphabet")'/>
+              <br/>
+              <textarea readonly rows='6' cols='14' id='alphabet-stats'>
+              </textarea>
+            </td>
+          </tr>
+        </table>
+        <div class='stats-saved' id='pinyin-stats-saved'></div>
+        <div class='stats-saved' id='sheng-stats-saved'></div>
+        <div class='stats-saved' id='yun-stats-saved'></div>
+        <div class='stats-saved' id='letter-stats-saved'></div>
+        <div class='stats-saved' id='alphabet-stats-saved'></div>
+      </div>
+
+      <div class='keyboard'>
+        <p/><b>模式: </b>
+        <label>
+          <select id='scheme-name' onchange='select_scheme()'>
+            <option value='双拼'>双拼</option>
+            <option value='声母模式'>声母模式（只看声母）</option>
+            <option value='全拼/英文'>全拼/英文</option>
+          </select>
+        </label>
+        <button onclick='evaluate_current_scheme()'>评测当前方案</button>
+        <button onclick='evaluate_all_schemes()'>评测所有方案</button>
+        <span id='export-area' style='display:none'>
+          <label>
+            <select id='ime-engine' onchange='export_scheme()' disabled='disabled'>
+              <option value='none'>输出功能已暂时关闭</option>
+              <option value='fcitx'>Fcitx/小企鹅</option>
+              <option value='rime'>Rime/中州韵</option>
+              <option value='rime_smart'>Rime/中州韵+辅助码</option>
+            </select>
+          </label>
+        </span>
+        &nbsp; &nbsp; &nbsp; &nbsp;
+        <b>键盘布局: </b>
+        <label>
+          <select id='layout-name' onchange='select_scheme()'>
+            <option value='qwerty'>Qwerty</option>
+            <option value='dvorak'>Dvorak</option>
+            <option value='colemak'>Colemak</option>
+            <option value='workman'>Workman</option>
+          </select>
+        </label>
+        &nbsp; &nbsp; &nbsp; &nbsp;
+        <b>排列方式: </b>
+        <label>
+          <select id='geometry' onchange='select_scheme()'>
+            <option value='matrix' selected='selected'>矩阵</option>
+            <option value='staggered'>错排(传统)</option>
+          </select>
+        </label>
+        <br/>
+        <div class='keyboard-main'>
+          <div class='keyboard-grid'>
+            <table id='top-row'>
+              <tr>
+                <td><b id='key_00'></b><br/><input id='sm_00' class='sm'/><br/><input id='py_00' class='ym'/><br/><div id='heat_00'></div></td>
+                <td><b id='key_01'></b><br/><input id='sm_01' class='sm'/><br/><input id='py_01' class='ym'/><br/><div id='heat_01'></div></td>
+                <td><b id='key_02'></b><br/><input id='sm_02' class='sm'/><br/><input id='py_02' class='ym'/><br/><div id='heat_02'></div></td>
+                <td><b id='key_03'></b><br/><input id='sm_03' class='sm'/><br/><input id='py_03' class='ym'/><br/><div id='heat_03'></div></td>
+                <td><b id='key_04'></b><br/><input id='sm_04' class='sm'/><br/><input id='py_04' class='ym'/><br/><div id='heat_04'></div></td>
+                <td><b id='key_05'></b><br/><input id='sm_05' class='sm'/><br/><input id='py_05' class='ym'/><br/><div id='heat_05'></div></td>
+                <td><b id='key_06'></b><br/><input id='sm_06' class='sm'/><br/><input id='py_06' class='ym'/><br/><div id='heat_06'></div></td>
+                <td><b id='key_07'></b><br/><input id='sm_07' class='sm'/><br/><input id='py_07' class='ym'/><br/><div id='heat_07'></div></td>
+                <td><b id='key_08'></b><br/><input id='sm_08' class='sm'/><br/><input id='py_08' class='ym'/><br/><div id='heat_08'></div></td>
+                <td><b id='key_09'></b><br/><input id='sm_09' class='sm'/><br/><input id='py_09' class='ym'/><br/><div id='heat_09'></div></td>
+              </tr>
+            </table>
+            <table id='middle-row'>
+              <tr>
+                <td><b id='key_10'></b><br/><input id='sm_10' class='sm'/><br/><input id='py_10' class='ym'/><br/><div id='heat_10'></div></td>
+                <td><b id='key_11'></b><br/><input id='sm_11' class='sm'/><br/><input id='py_11' class='ym'/><br/><div id='heat_11'></div></td>
+                <td><b id='key_12'></b><br/><input id='sm_12' class='sm'/><br/><input id='py_12' class='ym'/><br/><div id='heat_12'></div></td>
+                <td><b id='key_13'></b><br/><input id='sm_13' class='sm'/><br/><input id='py_13' class='ym'/><br/><div id='heat_13'></div></td>
+                <td><b id='key_14'></b><br/><input id='sm_14' class='sm'/><br/><input id='py_14' class='ym'/><br/><div id='heat_14'></div></td>
+                <td><b id='key_15'></b><br/><input id='sm_15' class='sm'/><br/><input id='py_15' class='ym'/><br/><div id='heat_15'></div></td>
+                <td><b id='key_16'></b><br/><input id='sm_16' class='sm'/><br/><input id='py_16' class='ym'/><br/><div id='heat_16'></div></td>
+                <td><b id='key_17'></b><br/><input id='sm_17' class='sm'/><br/><input id='py_17' class='ym'/><br/><div id='heat_17'></div></td>
+                <td><b id='key_18'></b><br/><input id='sm_18' class='sm'/><br/><input id='py_18' class='ym'/><br/><div id='heat_18'></div></td>
+                <td><b id='key_19'></b><br/><input id='sm_19' class='sm'/><br/><input id='py_19' class='ym'/><br/><div id='heat_19'></div></td>
+              </tr>
+            </table>
+            <table id='bottom-row'>
+              <tr>
+                <td><b id='key_20'></b><br/><input id='sm_20' class='sm'/><br/><input id='py_20' class='ym'/><br/><div id='heat_20'></div></td>
+                <td><b id='key_21'></b><br/><input id='sm_21' class='sm'/><br/><input id='py_21' class='ym'/><br/><div id='heat_21'></div></td>
+                <td><b id='key_22'></b><br/><input id='sm_22' class='sm'/><br/><input id='py_22' class='ym'/><br/><div id='heat_22'></div></td>
+                <td><b id='key_23'></b><br/><input id='sm_23' class='sm'/><br/><input id='py_23' class='ym'/><br/><div id='heat_23'></div></td>
+                <td><b id='key_24'></b><br/><input id='sm_24' class='sm'/><br/><input id='py_24' class='ym'/><br/><div id='heat_24'></div></td>
+                <td><b id='key_25'></b><br/><input id='sm_25' class='sm'/><br/><input id='py_25' class='ym'/><br/><div id='heat_25'></div></td>
+                <td><b id='key_26'></b><br/><input id='sm_26' class='sm'/><br/><input id='py_26' class='ym'/><br/><div id='heat_26'></div></td>
+                <td><b id='key_27'></b><br/><input id='sm_27' class='sm'/><br/><input id='py_27' class='ym'/><br/><div id='heat_27'></div></td>
+                <td><b id='key_28'></b><br/><input id='sm_28' class='sm'/><br/><input id='py_28' class='ym'/><br/><div id='heat_28'></div></td>
+                <td><b id='key_29'></b><br/><input id='sm_29' class='sm'/><br/><input id='py_29' class='ym'/><br/><div id='heat_29'></div></td>
+              </tr>
+            </table>
+          </div>
+          <div class='saved-layout-panel'>
+            <p class='saved-layout-title'><b>布局</b></p>
+            <div class='saved-layout-actions'>
+              <button onclick='save_current_layout()'>保存</button>
+              <button onclick='load_saved_layout_from_ui()'>载入</button>
+              <button onclick='rename_saved_layout_from_ui()'>重命名</button>
+              <button onclick='delete_saved_layout_from_ui()'>删除</button>
+            </div>
+            <div class='saved-layout-actions'>
+              <button onclick='replace_saved_layout_from_ui()'>替换</button>
+              <button id='undo-replace-layout' onclick='undo_replace_saved_layout_from_ui()' disabled='disabled'>撤回</button>
+            </div>
+            <div id='saved-layouts' class='saved-layouts-list'></div>
+          </div>
+        </div>
+      </div>
+      <div class='irrational' id='irrational'>
+        <input type="checkbox" id='enable-irrational-pinyin'/>
+        <b>试验无理拼音: </b> <input id='irrational-pinyin' value='的=duang，是=shv，用=yeng' size='100'/>
+      </div>
+      <div class='result' id='result'>
+        <table>
+          <tr>
+            <td class='result'>
+              <p/><b>评测结果：</b> <b id='score'></b><span id='score-old' class='score-old'></span> &nbsp; <b id='error'></b>
+              <br/>
+              <table>
+                <tr>
+                  <td>
+                    <table class='stats'>
+                      <tr>
+                        <th>小指</th><th>无名指</th><th>中指</th><th>食指</th><th>左手</th>
+                      </tr>
+                      <tr>
+                        <td class='stats' id='finger_0'></td>
+                        <td class='stats' id='finger_1'></td>
+                        <td class='stats' id='finger_2'></td>
+                        <td class='stats' id='finger_3'></td>
+                        <td class='stats' id='left_hand'></td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td>
+                  </td>
+                  <td>
+                    <table class='stats'>
+                      <tr>
+                        <th>右手</th><th>食指</th><th>中指</th><th>无名指</th><th>小指</th>
+                      </tr>
+                      <tr>
+                        <td class='stats' id='right_hand'></td>
+                        <td class='stats' id='finger_6'></td>
+                        <td class='stats' id='finger_7'></td>
+                        <td class='stats' id='finger_8'></td>
+                        <td class='stats' id='finger_9'></td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td>
+                  </td>
+                  <td>
+                    <table class='stats stats-noheader'>
+                      <tr>
+                        <th>上排</th> <td class='stats' id='row_0'></td>
+                      </tr>
+                      <tr>
+                        <th>中排</th> <td class='stats' id='row_1'></td>
+                      </tr>
+                      <tr>
+                        <th>下排</th> <td class='stats' id='row_2'></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <table>
+                <tr>
+                  <td>
+                    <b>&nbsp;</b>
+                    <table class='stats'>
+                      <tr>
+                        <th></th><th>击键数</th><th>时间</th><th>距离</th>
+                        <th>计时<br/>距离</th><th>不计时距离</th>
+                      </tr>
+                      <tr>
+                        <th>总数</th>
+                        <td class='stats' id='hits'></td>
+                        <td class='stats' id='time'></td>
+                        <td class='stats' id='distance'></td>
+                        <td class='stats' id='effective_distance'></td>
+                        <td class='stats' id='overlap_distance'></td>
+                      </tr>
+                      <tr>
+                        <th>平均<br/>每键</th>
+                        <td class='stats'></td>
+                        <td class='stats' id='avg_time'></td>
+                        <td class='stats' id='avg_distance'></td>
+                        <td class='stats' id='avg_effective_distance'></td>
+                        <td class='stats' id='avg_overlap_distance'></td>
+                      </tr>
+                    </table>
+                  </td>
+                  <td>
+                  </td>
+                  <td>
+                    <b>同手连击: </b><b id='same_hand'></b>
+                    <table class='stats'>
+                      <tr>
+                        <th></th><th class='stats-nowrap'>0 距离</th><th class='stats-nowrap'>1 距离</th><th class='stats-nowrap'>2 距离</th>
+                      </tr>
+                      <tr>
+                        <th>同指<br/>连击</th>
+                        <td class='stats' id='same_finger_0'></td>
+                        <td class='stats' id='same_finger_1'></td>
+                        <td class='stats' id='same_finger_2'></td>
+                      </tr>
+                      <tr>
+                        <th>同手<br/>异指<br/>连击</th>
+                        <td class='stats' id='diff_finger_0'></td>
+                        <td class='stats' id='diff_finger_1'></td>
+                        <td class='stats' id='diff_finger_2'></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td>
+              &nbsp; &nbsp; &nbsp;
+            </td>
+            <td class='result' id='improvement'>
+              <p/><b>优化：</b>
+              <div class='improve-controls'>
+                <div class='improve-row'>
+                  <label>
+                    <select id='improve-mode'>
+                      <option value='mixed'>混合</option>
+                      <option value='yun'>只换韵母</option>
+                      <option value='sheng'>只换声母</option>
+                    </select>
+                  </label>
+                  <label>
+                    <input type='checkbox' id='improve-two-step'/>两步搜索
+                  </label>
+                  <button id='improve' onclick='improve_and_try_suggestion()'>建议</button>
+                  <span id='improve-status'></span>
+                </div>
+                <div class='improve-row'>
+                  <label>
+                    允许中间变差（第一步最多掉分）
+                    <input type='number' id='improve-allow-worse' value='0.50' step='0.10' min='0' style='width:70px'/>分
+                  </label>
+                </div>
+                <div class='improve-row'>
+                  <label title='两步搜索时：第一步保留多少个“中间方案”继续尝试第二步。数值越大越容易找到绕路变好的组合，但会更慢。'>
+                    中间方案数量（越大越慢但更全面）
+                    <input type='number' id='improve-beam-width' value='12' step='1' min='1' style='width:60px'/>
+                  </label>
+                </div>
+                <hr class='improve-sep'/>
+                <div class='improve-row'>
+                  <span class='improve-label' title='模拟退火（Simulated Annealing）：通过“偶尔接受变差”的随机搜索跳出局部最优。'>模拟退火（SA）</span>
+                  <span class='improve-item' title='步数：随机尝试交换的次数。越大越慢，但更有机会跳出局部最优。'>步数 <input type='number' id='sa-steps' value='8000' step='500' min='100' style='width:80px'/></span>
+                  <span class='improve-item' title='重启：从当前布局“抖动”后再跑一遍，取最好结果。越大越稳但更慢。'>重启 <input type='number' id='sa-restarts' value='4' step='1' min='1' style='width:60px'/></span>
+                  <span class='improve-break'></span>
+                  <span class='improve-item' title='温度比例：越大越敢接受暂时变差（更容易跳坑但更不稳定）；越小越像贪心微调。'>温度比例 <input type='number' id='sa-temp' value='0.012' step='0.002' min='0.001' style='width:70px'/></span>
+                  <span class='improve-item' title='只对调韵母层，不改变声母层的位置。'><label><input type='checkbox' id='sa-yun-only'/>只动韵母</label></span>
+                  <button id='global-search-sa' onclick='global_search_sa()' title='开始运行模拟退火（会自动应用找到的最好结果）。'>开始退火</button>
+                  <button id='global-search-sa-undo' onclick='undo_global_search_sa()' disabled title='回到本次退火开始前的布局。'>撤回</button>
+                </div>
+                <hr class='improve-sep'/>
+                <div class='improve-row'>
+                  <span class='improve-label' title='禁忌搜索（Tabu Search）：每一步挑当前最好的交换（即使变差），并用禁忌表避免短期来回折返。'>禁忌搜索（TS）</span>
+                  <span class='improve-item' title='步数：要走多少步（每步会应用一次交换）。越大越慢，探索更充分。'>步数 <input type='number' id='tabu-steps' value='1200' step='100' min='50' style='width:80px'/></span>
+                  <span class='improve-item' title='禁忌长度：最近多少步内的“同一交换”不允许重复，防止来回抖动。太小容易绕圈，太大可能错过好路。'>禁忌长度 <input type='number' id='tabu-tenure' value='30' step='1' min='1' style='width:60px'/></span>
+                  <span class='improve-item' title='候选数量：每步随机抽多少个交换来评估。0 表示每步枚举所有交换（最全面但最慢）。'>候选数量 <input type='number' id='tabu-candidates' value='160' step='20' min='0' style='width:70px'/></span>
+                  <span class='improve-item' title='只对调韵母层，不改变声母层的位置。'><label><input type='checkbox' id='tabu-yun-only'/>只动韵母</label></span>
+                  <button id='global-search-tabu' onclick='global_search_tabu()' title='开始运行禁忌搜索（会自动应用找到的最好结果）。'>开始禁忌</button>
+                  <button id='global-search-tabu-undo' onclick='undo_global_search_tabu()' disabled title='回到本次禁忌开始前的布局。'>撤回</button>
+                </div>
+              </div>
+              <select id='suggestion' onclick='apply_suggestion()' size=16>
+              </select>
+            </td>
+          </tr>
+        </table>
+
+        <p/><b>说明：</b>
+        <ul>
+          <li>
+            测试模型中的时间和距离只有相对的意义，所以结果只可以在
+            不同方案之间进行比较。
+          </li>
+          <li>
+            手指的灵活度，也就是移动和击键的速度，是不同的。模型假定
+            食指最灵活，中指和无名指次之，小指最不灵活。
+          </li>
+          <li>
+            两手交替击键时，一手击键的同时另一手可以移动到位，这样的
+            重叠移动不被计时。
+          </li>
+          <li>
+            同手连击时，第二击之前的移动是被计时的。
+          </li>
+          <li>
+            所有的向下按键动作都被计时。
+          </li>
+        </ul>
+
+      </div>
+    </div>
+  </body>
+</html>

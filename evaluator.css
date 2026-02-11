@@ -1,0 +1,437 @@
+body {
+  background: #eee;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+div.text-input-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+div.text-input-modal {
+  background: #fff;
+  border: 1px solid #243;
+  border-radius: 6px;
+  padding: 10px 12px;
+  min-width: 320px;
+  max-width: calc(100vw - 40px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+div.text-input-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+input.text-input-field {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #28a;
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+div.text-input-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+div.evaluator {
+  max-width: 1200px;
+  margin: auto;
+}
+div.test-text {
+  margin-left: 0px;
+}
+div.test-text input {
+  border: 2px solid #28a;
+  width: 60px;
+}
+div.test-text textarea {
+  position: relative;
+  top: 4px;
+}
+div.test-text .hint {
+  font-size: smaller;
+  color: #444;
+  margin-top: 4px;
+}
+div.test-text .text-count {
+  font-size: smaller;
+  color: #444;
+  margin-left: 8px;
+}
+div.test-text td[class='stats'] {
+  border: none;
+  background: transparent;
+  display: none
+}
+div.test-text div[class='stats-saved'] {
+  display: none
+}
+div.keyboard {
+  margin-left: 0px;
+  margin-bottom: 10px;
+}
+div.keyboard input {
+  border: 1px solid #28a;
+  border-radius: 3px;
+  font-size: 100%;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding: 2px;
+  width: 80px;
+}
+div.keyboard input.sm, div.keyboard input.ym {
+  width: 70px;
+  font-size: 90%;
+}
+div.keyboard input.sm {
+  margin-bottom: 2px;
+}
+div.keyboard input.ym {
+  margin-top: 2px;
+}
+div.keyboard div.keyboard-main {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 12px;
+}
+div.keyboard div.keyboard-grid {
+  flex: 0 0 auto;
+  display: inline-block;
+}
+div.keyboard div.saved-layout-panel {
+  background: #fff7e6;
+  border: 1px solid #243;
+  border-radius: 4px;
+  padding: 8px 10px;
+  width: 240px;
+  flex: 0 0 240px;
+}
+div.keyboard div.saved-layout-panel p.saved-layout-title {
+  margin-top: -2px;
+  margin-bottom: 6px;
+}
+div.keyboard div.saved-layout-panel p.saved-layout-title b {
+  font-size: 18px;
+}
+div.keyboard div.saved-layout-panel div.saved-layouts-list {
+  width: 100%;
+  height: 264px;
+  overflow-y: auto;
+  border: 1px solid #243;
+  background: #fff;
+  border-radius: 3px;
+}
+div.keyboard div.saved-layout-panel div.saved-layouts-list div.saved-layout-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+div.keyboard div.saved-layout-panel div.saved-layouts-list div.saved-layout-item[draggable='true'] {
+  cursor: grab;
+}
+div.keyboard div.saved-layout-panel div.saved-layouts-list div.saved-layout-item-dragging {
+  opacity: 0.55;
+}
+div.keyboard div.saved-layout-panel div.saved-layouts-list div.saved-layout-item-drop-before::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 0;
+  border-top: 3px solid #28a;
+  pointer-events: none;
+}
+div.keyboard div.saved-layout-panel div.saved-layouts-list div.saved-layout-item-drop-after::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 0;
+  border-top: 3px solid #28a;
+  pointer-events: none;
+}
+div.keyboard div.saved-layout-panel div.saved-layouts-list div.saved-layout-item-selected {
+  background: #28a;
+  color: #fff;
+}
+div.keyboard div.saved-layout-panel div.saved-layouts-list div.saved-layout-item:not(.saved-layout-item-selected):hover {
+  background: #eef8ff;
+}
+div.keyboard div.saved-layout-panel div.saved-layouts-list div.saved-layout-item-selected:hover {
+  background: #1f7fbf;
+  color: #fff;
+}
+div.keyboard div.saved-layout-panel span.saved-layout-score {
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid rgba(0, 0, 0, 0.35);
+}
+div.keyboard div.saved-layout-panel div.saved-layout-item-selected span.saved-layout-score {
+  border-left-color: rgba(255, 255, 255, 0.6);
+}
+div.keyboard div.saved-layout-panel div.saved-layout-empty {
+  padding: 8px 6px;
+  color: #666;
+  text-align: left;
+}
+div.keyboard div.saved-layout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+div.keyboard div {
+  text-align: center;
+}
+div.keyboard table, div.keyboard th, div.keyboard td {
+  background: #fed;
+  border: 1px solid #243;
+  padding: 8px 8px;
+  border-collapse: collapse;
+  margin-top: -1px;
+}
+div.keyboard td {
+  position: relative;
+}
+div.keyboard #top-row {
+  margin-left: 0px;
+}
+div.keyboard #middle-row {
+  margin-left: 0px;
+}
+div.keyboard #bottom-row {
+  margin-left: 0px;
+}
+div.keyboard b.keycap-selected {
+  background: #28a;
+  color: #fff;
+  border-radius: 3px;
+  padding: 0 4px;
+}
+div.keyboard button.swap-btn {
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: #28a;
+  padding: 0 4px;
+  height: 18px;
+  line-height: 18px;
+  font-size: 12px;
+}
+div.keyboard button.swap-btn-selected {
+  background: #28a;
+  color: #fff;
+}
+div.keyboard button.swap-btn-focus:not(.swap-btn-selected) {
+  background: #dff1ff;
+}
+div.keyboard button.swap-btn-disabled {
+  opacity: 0.25;
+  pointer-events: none;
+}
+div.keyboard button.swap-btn-hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+div.keyboard button.swap-btn:hover {
+  background: #dff1ff;
+}
+div.keyboard b.keycap-available {
+  background: #dff1ff;
+  color: #28a;
+  border-radius: 3px;
+  padding: 0 4px;
+}
+div.keyboard b.keycap-disabled {
+  opacity: 0.25;
+}
+div.keyboard b.keycap-selected {
+  background: #28a;
+  color: #fff;
+  border-radius: 3px;
+  padding: 0 4px;
+}
+div.keyboard button.lock-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: #666;
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  font-size: 13px;
+  z-index: 2;
+}
+div.keyboard button.lock-btn:hover {
+  background: #ffe8c2;
+}
+div.keyboard button.lock-btn-locked {
+  background: #f5c25a;
+  color: #000;
+}
+div.keyboard span.swap-input-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+div.keyboard span.swap-input-row input {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+div.irrational {
+  margin-left: 0px;
+  margin-bottom: 10px;
+  display: none;
+}
+div.result {
+  margin-left: 0px;
+  display: none;
+}
+div.result #error {
+  background: #ff0;
+  font-size: smaller;
+  display: block;
+  margin-top: 4px;
+  max-width: 520px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+div.result textarea {
+  position: relative;
+  top: 4px;
+}
+div.result select {
+  position: relative;
+  top: 4px;
+  width: 200px;
+}
+div.result #improve-mode {
+  width: 140px;
+}
+div.result #suggestion {
+  width: 420px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+div.result #improve-status {
+  font-size: smaller;
+  color: #999;
+  margin-left: 2px;
+  user-select: none;
+}
+div.result #score-old {
+  color: #999;
+  font-size: smaller;
+  margin-left: 6px;
+  white-space: nowrap;
+  user-select: none;
+  display: none;
+}
+td.result {
+  vertical-align: top;
+}
+
+div#result > table {
+  width: 100%;
+  table-layout: fixed;
+}
+div#result > table > tbody > tr > td:nth-child(2) {
+  width: 24px;
+}
+div#result > table > tbody > tr > td#improvement {
+  width: 520px;
+  padding-left: 0;
+  transform: translateX(100px);
+}
+
+div.result .improve-controls {
+  display: block;
+  margin-top: 4px;
+}
+
+div.result .improve-controls .improve-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+div.result .improve-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+div.result .improve-controls .improve-label,
+div.result .improve-controls .improve-item,
+div.result .improve-controls button {
+  white-space: nowrap;
+}
+
+div.result .improve-controls .improve-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+div.result .improve-controls hr.improve-sep {
+  width: 395px;
+  max-width: 100%;
+  height: 0;
+  border: none;
+  border-top: 2px solid rgba(34, 51, 68, 0.55);
+  margin: 8px 0 2px;
+}
+
+div.result .improve-controls select,
+div.result .improve-controls input,
+div.result .improve-controls button {
+  position: static;
+  top: auto;
+}
+table.stats {
+  background: #fed;
+  border-collapse: collapse;
+  margin-top: -1px;
+}
+table.stats th,
+table.stats td.stats {
+  border: 1px solid #243;
+  padding: 8px 8px;
+  text-align: center;
+  vertical-align: middle;
+}
+table.stats th {
+  background: #f8e7c7;
+  white-space: nowrap;
+}
+table.stats tr:not(:first-child) > th {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+table.stats:not(.stats-noheader) tr:first-child th {
+  background: #f2d9a5;
+  border-bottom-width: 2px;
+}
+table.stats th.stats-nowrap {
+  white-space: nowrap;
+}
