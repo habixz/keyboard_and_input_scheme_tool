@@ -320,7 +320,7 @@ an = AO (即 如果an == O, 结合方法2, 出现该情况)
 由于本人不太需要Rime输入法等的相关文件, 故隐藏了"生产配置文件"的功能
 
 
-## 上游项目信息
+# 上游项目信息
 
 - 原项目名称：shuangpin
 - 原项目仓库/主页：[macroxue/shuangpin](https://github.com/macroxue/shuangpin)
