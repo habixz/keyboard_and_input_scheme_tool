@@ -3411,6 +3411,20 @@ var global_search_sa_undo_state = null;
 var global_search_tabu_undo_state = null;
 var undo_baseline_info = null;
 
+function clear_global_search_sa_undo_state() {
+  global_search_sa_undo_state = null;
+  clear_undo_baseline_info('sa');
+  var sa_undo_btn = document.getElementById('global-search-sa-undo');
+  if (sa_undo_btn != null) sa_undo_btn.disabled = true;
+}
+
+function clear_global_search_tabu_undo_state() {
+  global_search_tabu_undo_state = null;
+  clear_undo_baseline_info('tabu');
+  var tabu_undo_btn = document.getElementById('global-search-tabu-undo');
+  if (tabu_undo_btn != null) tabu_undo_btn.disabled = true;
+}
+
 function set_undo_baseline_info(source) {
   var score = get_current_layout_score();
   if (score == null || isNaN(score)) {
@@ -4237,10 +4251,13 @@ function global_search_sa() {
   var improve_btn = document.getElementById('improve');
   var sa_btn = document.getElementById('global-search-sa');
   var sa_undo_btn = document.getElementById('global-search-sa-undo');
+  var tabu_btn = document.getElementById('global-search-tabu');
+  clear_global_search_tabu_undo_state();
   if (improve_btn != null) improve_btn.disabled = true;
   if (sa_btn != null) sa_btn.disabled = true;
   if (sa_undo_btn != null) sa_undo_btn.disabled = true;
-  global_search_sa_undo_state = read_keyboard_state();
+  if (tabu_btn != null) tabu_btn.disabled = true;
+  global_search_sa_undo_state = clone_keyboard_state(state0);
   set_undo_baseline_info('sa');
   update_old_layout_score_ui();
 
@@ -4371,6 +4388,7 @@ function global_search_sa() {
     if (restart_idx >= restarts) {
       if (improve_btn != null) improve_btn.disabled = false;
       if (sa_btn != null) sa_btn.disabled = false;
+      if (tabu_btn != null) tabu_btn.disabled = false;
       if (sa_undo_btn != null) sa_undo_btn.disabled = false;
       mark_undo_baseline_ready('sa');
       update_old_layout_score_ui();
@@ -4445,8 +4463,8 @@ function global_search_sa_full_pinyin() {
 
   var improve_btn = document.getElementById('improve');
   var sa_btn = document.getElementById('global-search-sa');
-  if (improve_btn != null) improve_btn.disabled = true;
-  if (sa_btn != null) sa_btn.disabled = true;
+  var sa_undo_btn = document.getElementById('global-search-sa-undo');
+  var tabu_btn = document.getElementById('global-search-tabu');
 
   var layout = get_layout();
   var key_list = [];
@@ -4461,6 +4479,15 @@ function global_search_sa_full_pinyin() {
     alert('可用于交换的按键不足，无法开始搜索。');
     return;
   }
+
+  clear_global_search_tabu_undo_state();
+  if (improve_btn != null) improve_btn.disabled = true;
+  if (sa_btn != null) sa_btn.disabled = true;
+  if (sa_undo_btn != null) sa_undo_btn.disabled = true;
+  if (tabu_btn != null) tabu_btn.disabled = true;
+  global_search_sa_undo_state = clone_keyboard_state(state0);
+  set_undo_baseline_info('sa');
+  update_old_layout_score_ui();
 
   var best_cost = baseline;
   var best_state = clone_keyboard_state(state0);
@@ -4595,6 +4622,10 @@ function global_search_sa_full_pinyin() {
     if (restart_idx >= restarts) {
       if (improve_btn != null) improve_btn.disabled = false;
       if (sa_btn != null) sa_btn.disabled = false;
+      if (tabu_btn != null) tabu_btn.disabled = false;
+      if (sa_undo_btn != null) sa_undo_btn.disabled = false;
+      mark_undo_baseline_ready('sa');
+      update_old_layout_score_ui();
 
       var score = (baseline - best_cost) / total_hits * 100;
       if (best_cost < baseline - epsilon) {
@@ -4667,9 +4698,7 @@ function global_search_tabu_full_pinyin() {
   var improve_btn = document.getElementById('improve');
   var sa_btn = document.getElementById('global-search-sa');
   var tabu_btn = document.getElementById('global-search-tabu');
-  if (improve_btn != null) improve_btn.disabled = true;
-  if (sa_btn != null) sa_btn.disabled = true;
-  if (tabu_btn != null) tabu_btn.disabled = true;
+  var tabu_undo_btn = document.getElementById('global-search-tabu-undo');
 
   var layout = get_layout();
   var key_list = [];
@@ -4685,6 +4714,15 @@ function global_search_tabu_full_pinyin() {
     alert('可用于交换的按键不足，无法开始搜索。');
     return;
   }
+
+  clear_global_search_sa_undo_state();
+  if (improve_btn != null) improve_btn.disabled = true;
+  if (sa_btn != null) sa_btn.disabled = true;
+  if (tabu_btn != null) tabu_btn.disabled = true;
+  if (tabu_undo_btn != null) tabu_undo_btn.disabled = true;
+  global_search_tabu_undo_state = clone_keyboard_state(state0);
+  set_undo_baseline_info('tabu');
+  update_old_layout_score_ui();
 
   function random_int(n) {
     return Math.floor(Math.random() * n);
@@ -4847,6 +4885,9 @@ function global_search_tabu_full_pinyin() {
     if (improve_btn != null) improve_btn.disabled = false;
     if (sa_btn != null) sa_btn.disabled = false;
     if (tabu_btn != null) tabu_btn.disabled = false;
+    if (tabu_undo_btn != null) tabu_undo_btn.disabled = false;
+    mark_undo_baseline_ready('tabu');
+    update_old_layout_score_ui();
 
     var final_score = (baseline - best_cost) / total_hits * 100;
     if (best_cost < baseline - epsilon) {
@@ -4935,10 +4976,13 @@ function global_search_tabu() {
   var improve_btn = document.getElementById('improve');
   var sa_btn = document.getElementById('global-search-sa');
   var tabu_btn = document.getElementById('global-search-tabu');
+  var sa_undo_btn = document.getElementById('global-search-sa-undo');
   var tabu_undo_btn = document.getElementById('global-search-tabu-undo');
+  clear_global_search_sa_undo_state();
   if (improve_btn != null) improve_btn.disabled = true;
   if (sa_btn != null) sa_btn.disabled = true;
   if (tabu_btn != null) tabu_btn.disabled = true;
+  if (sa_undo_btn != null) sa_undo_btn.disabled = true;
   if (tabu_undo_btn != null) tabu_undo_btn.disabled = true;
   global_search_tabu_undo_state = read_keyboard_state();
   set_undo_baseline_info('tabu');
