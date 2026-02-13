@@ -125,48 +125,66 @@
         <br/>
         <div class='keyboard-main'>
           <div class='keyboard-grid'>
-            <table id='top-row'>
-              <tr>
-                <td><b id='key_00'></b><br/><input id='sm_00' class='sm'/><br/><input id='py_00' class='ym'/><br/><div id='heat_00'></div></td>
-                <td><b id='key_01'></b><br/><input id='sm_01' class='sm'/><br/><input id='py_01' class='ym'/><br/><div id='heat_01'></div></td>
-                <td><b id='key_02'></b><br/><input id='sm_02' class='sm'/><br/><input id='py_02' class='ym'/><br/><div id='heat_02'></div></td>
-                <td><b id='key_03'></b><br/><input id='sm_03' class='sm'/><br/><input id='py_03' class='ym'/><br/><div id='heat_03'></div></td>
-                <td><b id='key_04'></b><br/><input id='sm_04' class='sm'/><br/><input id='py_04' class='ym'/><br/><div id='heat_04'></div></td>
-                <td><b id='key_05'></b><br/><input id='sm_05' class='sm'/><br/><input id='py_05' class='ym'/><br/><div id='heat_05'></div></td>
-                <td><b id='key_06'></b><br/><input id='sm_06' class='sm'/><br/><input id='py_06' class='ym'/><br/><div id='heat_06'></div></td>
-                <td><b id='key_07'></b><br/><input id='sm_07' class='sm'/><br/><input id='py_07' class='ym'/><br/><div id='heat_07'></div></td>
-                <td><b id='key_08'></b><br/><input id='sm_08' class='sm'/><br/><input id='py_08' class='ym'/><br/><div id='heat_08'></div></td>
-                <td><b id='key_09'></b><br/><input id='sm_09' class='sm'/><br/><input id='py_09' class='ym'/><br/><div id='heat_09'></div></td>
-              </tr>
-            </table>
-            <table id='middle-row'>
-              <tr>
-                <td><b id='key_10'></b><br/><input id='sm_10' class='sm'/><br/><input id='py_10' class='ym'/><br/><div id='heat_10'></div></td>
-                <td><b id='key_11'></b><br/><input id='sm_11' class='sm'/><br/><input id='py_11' class='ym'/><br/><div id='heat_11'></div></td>
-                <td><b id='key_12'></b><br/><input id='sm_12' class='sm'/><br/><input id='py_12' class='ym'/><br/><div id='heat_12'></div></td>
-                <td><b id='key_13'></b><br/><input id='sm_13' class='sm'/><br/><input id='py_13' class='ym'/><br/><div id='heat_13'></div></td>
-                <td><b id='key_14'></b><br/><input id='sm_14' class='sm'/><br/><input id='py_14' class='ym'/><br/><div id='heat_14'></div></td>
-                <td><b id='key_15'></b><br/><input id='sm_15' class='sm'/><br/><input id='py_15' class='ym'/><br/><div id='heat_15'></div></td>
-                <td><b id='key_16'></b><br/><input id='sm_16' class='sm'/><br/><input id='py_16' class='ym'/><br/><div id='heat_16'></div></td>
-                <td><b id='key_17'></b><br/><input id='sm_17' class='sm'/><br/><input id='py_17' class='ym'/><br/><div id='heat_17'></div></td>
-                <td><b id='key_18'></b><br/><input id='sm_18' class='sm'/><br/><input id='py_18' class='ym'/><br/><div id='heat_18'></div></td>
-                <td><b id='key_19'></b><br/><input id='sm_19' class='sm'/><br/><input id='py_19' class='ym'/><br/><div id='heat_19'></div></td>
-              </tr>
-            </table>
-            <table id='bottom-row'>
-              <tr>
-                <td><b id='key_20'></b><br/><input id='sm_20' class='sm'/><br/><input id='py_20' class='ym'/><br/><div id='heat_20'></div></td>
-                <td><b id='key_21'></b><br/><input id='sm_21' class='sm'/><br/><input id='py_21' class='ym'/><br/><div id='heat_21'></div></td>
-                <td><b id='key_22'></b><br/><input id='sm_22' class='sm'/><br/><input id='py_22' class='ym'/><br/><div id='heat_22'></div></td>
-                <td><b id='key_23'></b><br/><input id='sm_23' class='sm'/><br/><input id='py_23' class='ym'/><br/><div id='heat_23'></div></td>
-                <td><b id='key_24'></b><br/><input id='sm_24' class='sm'/><br/><input id='py_24' class='ym'/><br/><div id='heat_24'></div></td>
-                <td><b id='key_25'></b><br/><input id='sm_25' class='sm'/><br/><input id='py_25' class='ym'/><br/><div id='heat_25'></div></td>
-                <td><b id='key_26'></b><br/><input id='sm_26' class='sm'/><br/><input id='py_26' class='ym'/><br/><div id='heat_26'></div></td>
-                <td><b id='key_27'></b><br/><input id='sm_27' class='sm'/><br/><input id='py_27' class='ym'/><br/><div id='heat_27'></div></td>
-                <td><b id='key_28'></b><br/><input id='sm_28' class='sm'/><br/><input id='py_28' class='ym'/><br/><div id='heat_28'></div></td>
-                <td><b id='key_29'></b><br/><input id='sm_29' class='sm'/><br/><input id='py_29' class='ym'/><br/><div id='heat_29'></div></td>
-              </tr>
-            </table>
+            <div id='top-row' class='kb-row'>
+              <table class='kb-half'>
+                <tr>
+                  <td><b id='key_00'></b><br/><input id='sm_00' class='sm'/><br/><input id='py_00' class='ym'/><br/><div id='heat_00'></div></td>
+                  <td><b id='key_01'></b><br/><input id='sm_01' class='sm'/><br/><input id='py_01' class='ym'/><br/><div id='heat_01'></div></td>
+                  <td><b id='key_02'></b><br/><input id='sm_02' class='sm'/><br/><input id='py_02' class='ym'/><br/><div id='heat_02'></div></td>
+                  <td><b id='key_03'></b><br/><input id='sm_03' class='sm'/><br/><input id='py_03' class='ym'/><br/><div id='heat_03'></div></td>
+                  <td><b id='key_04'></b><br/><input id='sm_04' class='sm'/><br/><input id='py_04' class='ym'/><br/><div id='heat_04'></div></td>
+                </tr>
+              </table>
+              <table class='kb-half'>
+                <tr>
+                  <td><b id='key_05'></b><br/><input id='sm_05' class='sm'/><br/><input id='py_05' class='ym'/><br/><div id='heat_05'></div></td>
+                  <td><b id='key_06'></b><br/><input id='sm_06' class='sm'/><br/><input id='py_06' class='ym'/><br/><div id='heat_06'></div></td>
+                  <td><b id='key_07'></b><br/><input id='sm_07' class='sm'/><br/><input id='py_07' class='ym'/><br/><div id='heat_07'></div></td>
+                  <td><b id='key_08'></b><br/><input id='sm_08' class='sm'/><br/><input id='py_08' class='ym'/><br/><div id='heat_08'></div></td>
+                  <td><b id='key_09'></b><br/><input id='sm_09' class='sm'/><br/><input id='py_09' class='ym'/><br/><div id='heat_09'></div></td>
+                </tr>
+              </table>
+            </div>
+            <div id='middle-row' class='kb-row'>
+              <table class='kb-half'>
+                <tr>
+                  <td><b id='key_10'></b><br/><input id='sm_10' class='sm'/><br/><input id='py_10' class='ym'/><br/><div id='heat_10'></div><div class='home-finger'>小指</div></td>
+                  <td><b id='key_11'></b><br/><input id='sm_11' class='sm'/><br/><input id='py_11' class='ym'/><br/><div id='heat_11'></div><div class='home-finger'>无名指</div></td>
+                  <td><b id='key_12'></b><br/><input id='sm_12' class='sm'/><br/><input id='py_12' class='ym'/><br/><div id='heat_12'></div><div class='home-finger'>中指</div></td>
+                  <td><b id='key_13'></b><br/><input id='sm_13' class='sm'/><br/><input id='py_13' class='ym'/><br/><div id='heat_13'></div><div class='home-finger'>食指</div></td>
+                  <td><b id='key_14'></b><br/><input id='sm_14' class='sm'/><br/><input id='py_14' class='ym'/><br/><div id='heat_14'></div></td>
+                </tr>
+              </table>
+              <table class='kb-half'>
+                <tr>
+                  <td><b id='key_15'></b><br/><input id='sm_15' class='sm'/><br/><input id='py_15' class='ym'/><br/><div id='heat_15'></div></td>
+                  <td><b id='key_16'></b><br/><input id='sm_16' class='sm'/><br/><input id='py_16' class='ym'/><br/><div id='heat_16'></div><div class='home-finger'>食指</div></td>
+                  <td><b id='key_17'></b><br/><input id='sm_17' class='sm'/><br/><input id='py_17' class='ym'/><br/><div id='heat_17'></div><div class='home-finger'>中指</div></td>
+                  <td><b id='key_18'></b><br/><input id='sm_18' class='sm'/><br/><input id='py_18' class='ym'/><br/><div id='heat_18'></div><div class='home-finger'>无名指</div></td>
+                  <td><b id='key_19'></b><br/><input id='sm_19' class='sm'/><br/><input id='py_19' class='ym'/><br/><div id='heat_19'></div><div class='home-finger'>小指</div></td>
+                </tr>
+              </table>
+            </div>
+            <div id='bottom-row' class='kb-row'>
+              <table class='kb-half'>
+                <tr>
+                  <td><b id='key_20'></b><br/><input id='sm_20' class='sm'/><br/><input id='py_20' class='ym'/><br/><div id='heat_20'></div></td>
+                  <td><b id='key_21'></b><br/><input id='sm_21' class='sm'/><br/><input id='py_21' class='ym'/><br/><div id='heat_21'></div></td>
+                  <td><b id='key_22'></b><br/><input id='sm_22' class='sm'/><br/><input id='py_22' class='ym'/><br/><div id='heat_22'></div></td>
+                  <td><b id='key_23'></b><br/><input id='sm_23' class='sm'/><br/><input id='py_23' class='ym'/><br/><div id='heat_23'></div></td>
+                  <td><b id='key_24'></b><br/><input id='sm_24' class='sm'/><br/><input id='py_24' class='ym'/><br/><div id='heat_24'></div></td>
+                </tr>
+              </table>
+              <table class='kb-half'>
+                <tr>
+                  <td><b id='key_25'></b><br/><input id='sm_25' class='sm'/><br/><input id='py_25' class='ym'/><br/><div id='heat_25'></div></td>
+                  <td><b id='key_26'></b><br/><input id='sm_26' class='sm'/><br/><input id='py_26' class='ym'/><br/><div id='heat_26'></div></td>
+                  <td><b id='key_27'></b><br/><input id='sm_27' class='sm'/><br/><input id='py_27' class='ym'/><br/><div id='heat_27'></div></td>
+                  <td><b id='key_28'></b><br/><input id='sm_28' class='sm'/><br/><input id='py_28' class='ym'/><br/><div id='heat_28'></div></td>
+                  <td><b id='key_29'></b><br/><input id='sm_29' class='sm'/><br/><input id='py_29' class='ym'/><br/><div id='heat_29'></div></td>
+                </tr>
+              </table>
+            </div>
           </div>
           <div class='saved-layout-panel'>
             <p class='saved-layout-title'><b>布局</b></p>

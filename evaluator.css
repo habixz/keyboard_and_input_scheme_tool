@@ -44,6 +44,13 @@ div.text-input-actions {
 div.evaluator {
   max-width: 1200px;
   margin: auto;
+  position: relative;
+  --shift-x: -60px;
+  left: var(--shift-x);
+}
+div.evaluator > hr {
+  width: calc(100% + (50vw - 50%) - var(--shift-x));
+  margin-right: 0;
 }
 div.test-text {
   margin-left: 0px;
@@ -106,6 +113,14 @@ div.keyboard div.keyboard-main {
 div.keyboard div.keyboard-grid {
   flex: 0 0 auto;
   display: inline-block;
+}
+div.keyboard div.kb-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 52px;
+}
+div.keyboard div.kb-row table.kb-half {
+  flex: 0 0 auto;
 }
 div.keyboard div.saved-layout-panel {
   background: #fff7e6;
@@ -201,12 +216,30 @@ div.keyboard div {
 div.keyboard table, div.keyboard th, div.keyboard td {
   background: #fed;
   border: 1px solid #243;
-  padding: 8px 8px;
+  padding: 8px 0px;
   border-collapse: collapse;
   margin-top: -1px;
 }
 div.keyboard td {
   position: relative;
+  width: 116px;
+}
+div.keyboard div.home-finger {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  margin-top: 0;
+  font-size: 11px;
+  line-height: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+}
+div.keyboard #middle-row table.kb-half:first-child td:nth-child(-n + 4),
+div.keyboard #middle-row table.kb-half:last-child td:nth-child(n + 2) {
+  background: #f7d9b1;
 }
 div.keyboard #top-row {
   margin-left: 0px;
