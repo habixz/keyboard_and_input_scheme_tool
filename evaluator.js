@@ -1310,6 +1310,7 @@ function bind_swap_ui() {
 }
 
 var layout_library_entries = [];
+var layout_library_load_error = '';
 var selected_saved_layout_id = null;
 var dragging_saved_layout_id = null;
 var drag_over_saved_layout_id = null;
@@ -1380,6 +1381,7 @@ function reorder_layout_library_entries(from_id, to_id, insert_before) {
 }
 
 function reload_layout_library(selected_id) {
+  layout_library_load_error = '';
   fetch('/api/layouts', {cache: 'no-store'}).then(
     function(resp) {
       if (!resp.ok) {
@@ -1393,8 +1395,8 @@ function reload_layout_library(selected_id) {
     }).catch(
     function(err) {
       layout_library_entries = [];
+      layout_library_load_error = '无法读取布局文件（需用 local_server.py 启动本地服务）。';
       refresh_saved_layouts_ui(null);
-      alert('无法读取布局文件，请用 local_server.py 启动本地服务。');
     });
 }
 
@@ -1433,7 +1435,7 @@ function refresh_saved_layouts_ui(selected_id) {
     update_undo_replace_button();
     var empty = document.createElement('div');
     empty.className = 'saved-layout-empty';
-    empty.innerHTML = '未保存';
+    empty.innerHTML = layout_library_load_error != '' ? layout_library_load_error : '未保存';
     list.appendChild(empty);
     return;
   }
