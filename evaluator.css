@@ -97,6 +97,7 @@ div.keyboard input {
 div.keyboard input.sm, div.keyboard input.ym {
   width: 70px;
   font-size: 90%;
+  font-family: Consolas, "Courier New", ui-monospace, monospace;
 }
 div.keyboard input.sm {
   margin-bottom: 2px;
@@ -324,11 +325,19 @@ div.keyboard button.lock-btn-locked {
 div.keyboard span.swap-input-row {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: flex-start;
+  gap: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 div.keyboard span.swap-input-row input {
   margin-top: 0;
   margin-bottom: 0;
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  box-sizing: border-box;
 }
 div.irrational {
   margin-left: 0px;
