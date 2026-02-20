@@ -3,13 +3,13 @@
   "version": 1,
   "entries": [
     {
-      "id": "1770997755393",
-      "name": "布局1",
-      "createdAt": 1770997755393,
+      "id": "1771522387457",
+      "name": "布局 169.33",
+      "createdAt": 1771522387457,
       "schemeName": "双拼",
       "layoutName": "qwerty",
       "geometry": "matrix",
-      "scheme": "Q=q s ia ua,W=w zh v,E=e h iang uang,R=r g uan,T=t k uai,Y=y f ui,U=u j en eng,I=i ch,O=o x ong iong,P=p q an,A=a w ei,S=s sh u,D=d in ing,F=f y ang,G=g r ue ve,H=h a,J=j l ao,K=k b ai,L=l e er,FH=,Z=z n iao,X=x t ie,C=c m ian,V=v z un,B=b c iu,N=n o ou,M=m p uo,DH=,JH=,CH=",
+      "scheme": "Q=m iu,W=j ie,E=b iao,R=t ian,T=n ue ve,Y=p ei,U=ch u,I=sh i,O=x in ing,P=q en eng,A=h uo,S=l uan,D=y ao,F=d ui,G=z ia ua,H=c ai,J=g an,K=e er,L=s ong iong,FH=,Z=w un,X=r iang uang,C=f ang,V=zh v,B=k uai,N=a,M=o ou,DH=,JH=,CH=",
       "symbolTags": {
         "q": "",
         "w": "",
@@ -42,17 +42,22 @@
         ".": ".",
         "/": "/"
       },
-      "lockedKeys": [],
-      "score": null
+      "lockedKeys": [
+        ",",
+        ".",
+        "/",
+        ";"
+      ],
+      "score": 169.32831542598345
     },
     {
-      "id": "1770996296145",
-      "name": "布局",
-      "createdAt": 1770996296145,
+      "id": "1771515856746",
+      "name": "布局 168.46",
+      "createdAt": 1771515856746,
       "schemeName": "双拼",
       "layoutName": "qwerty",
       "geometry": "matrix",
-      "scheme": "Q=q s ia ua,W=w zh v,E=e h iang uang,R=r g uan,T=t k uai,Y=y f ui,U=u j en eng,I=i ch,O=o x ong iong,P=p q an,A=a w ei,S=s sh u,D=d in ing,F=f y ang,G=g r ue ve,H=h a,J=j l ao,K=k b ai,L=l e er,FH=,Z=z n iao,X=x t ie,C=c m ian,V=v z un,B=b c iu,N=n o ou,M=m p uo,DH=,JH=,CH=",
+      "scheme": "Q=q iu,W=j ie,E=x iao,R=b ia ua,T=m ue ve,Y=s iang uang,U=ch u,I=sh i,O=r en eng,P=,A=w uan,S=d ao,D=y ang,F=l an,G=f un,H=c ei,J=h ai,K=e er,L=k in ing,FH=o ou,Z=z uo,X=g ui,C=t ong iong,V=zh v,B=n uai,N=a,M=p ian,DH=,JH=,CH=",
       "symbolTags": {
         "q": "",
         "w": "",
@@ -63,7 +68,7 @@
         "u": "",
         "i": "",
         "o": "",
-        "p": "",
+        "p": "/",
         "a": "",
         "s": "",
         "d": "",
@@ -73,7 +78,7 @@
         "j": "",
         "k": "",
         "l": "",
-        ";": ";",
+        ";": "",
         "z": "",
         "x": "",
         "c": "",
@@ -83,15 +88,20 @@
         "m": "",
         ",": ",",
         ".": ".",
-        "/": "/"
+        "/": ";"
       },
-      "lockedKeys": [],
-      "score": null
+      "lockedKeys": [
+        ",",
+        ".",
+        "/",
+        "p"
+      ],
+      "score": 168.4576429772853
     },
     {
-      "id": "1770889705143",
-      "name": "布局 174.37",
-      "createdAt": 1770889705143,
+      "id": "1771563123674",
+      "name": "布局 174",
+      "createdAt": 1771563123674,
       "schemeName": "双拼",
       "layoutName": "qwerty",
       "geometry": "matrix",
@@ -137,13 +147,56 @@
       "score": 174.3680897942215
     },
     {
-      "id": "1770745424721",
-      "name": "qwerty双拼最佳",
-      "createdAt": 1770745424721,
+      "id": "1771215285991",
+      "name": "小鹤",
+      "createdAt": 1771215285991,
       "schemeName": "双拼",
       "layoutName": "qwerty",
       "geometry": "matrix",
-      "scheme": "Q=q ue ve,W=w iu,E=e er,R=r ei,T=t uai,Y=y uan,U=sh u,I=ch i,O=o ou,P=p ang,A=a,S=s an,D=d ao,F=f en eng,G=g uo,H=h ui,J=j ai,K=k ong iong,L=l iang uang,FH=,Z=z ie,X=x ia ua,C=c in ing,V=zh v,B=b un,N=n iao,M=m ian,DH=,JH=,CH=",
+      "scheme": "Q=q iu,W=w ei,E=e,R=r uan,T=t ue ve,Y=y un,U=sh u,I=ch i,O=o uo,P=p ie,A=a,S=s ong iong,D=d ai,F=f en,G=g eng,H=h ang,J=j an,K=k uai ing,L=l iang uang,FH=,Z=z ou,X=x ia ua,C=c ao,V=zh v ui,B=b in,N=n iao,M=m ian,DH=,JH=,CH=",
+      "symbolTags": {
+        "q": "",
+        "w": "",
+        "e": "",
+        "r": "",
+        "t": "",
+        "y": "",
+        "u": "",
+        "i": "",
+        "o": "",
+        "p": "",
+        "a": "",
+        "s": "",
+        "d": "",
+        "f": "",
+        "g": "",
+        "h": "",
+        "j": "",
+        "k": "",
+        "l": "",
+        ";": ";",
+        "z": "",
+        "x": "",
+        "c": "",
+        "v": "",
+        "b": "",
+        "n": "",
+        "m": "",
+        ",": ",",
+        ".": ".",
+        "/": "/"
+      },
+      "lockedKeys": [],
+      "score": 107.94999264202087
+    },
+    {
+      "id": "1771266631635",
+      "name": "qwerty双拼最佳",
+      "createdAt": 1771266631635,
+      "schemeName": "双拼",
+      "layoutName": "qwerty",
+      "geometry": "matrix",
+      "scheme": "Q=q ue ve,W=w iu,E=e er,R=r ei,T=t uai,Y=y uan,U=sh u,I=zh i,O=o ou,P=p ang,A=a,S=s ong iong,D=d ao,F=f en eng,G=g uo,H=h ui,J=j ai,K=k an,L=l iang uang,FH=,Z=z ie,X=x ia ua,C=c in ing,V=ch v,B=b un,N=n iao,M=m ian,DH=,JH=,CH=",
       "symbolTags": {
         "q": "",
         "w": "",
@@ -188,12 +241,12 @@
         "u",
         "v"
       ],
-      "score": 114.43634502501135
+      "score": 116.60208963219934
     },
     {
-      "id": "1770888857582",
+      "id": "1771265733057",
       "name": "qwerty符号锁定",
-      "createdAt": 1770888857582,
+      "createdAt": 1771265733057,
       "schemeName": "双拼",
       "layoutName": "qwerty",
       "geometry": "matrix",
@@ -236,7 +289,55 @@
         "/",
         ";"
       ],
-      "score": null
+      "score": 104.91733696615076
+    },
+    {
+      "id": "1771515411358",
+      "name": "符号",
+      "createdAt": 1771515411358,
+      "schemeName": "双拼",
+      "layoutName": "qwerty",
+      "geometry": "matrix",
+      "scheme": "Q=q iu,W=w ei,E=e er,R=r uan,T=t ue ve,Y=y un,U=sh u,I=ch i,O=o ou,P=,A=a,S=s ong iong,D=d ai,F=f en eng,G=g ui,H=h ang,J=j an,K=k uai,L=l iang uang,FH=p ie,Z=z uo,X=x ia ua,C=c ao,V=zh v,B=b in ing,N=n iao,M=m ian,DH=,JH=,CH=",
+      "symbolTags": {
+        "q": "",
+        "w": "",
+        "e": "",
+        "r": "",
+        "t": "",
+        "y": "",
+        "u": "",
+        "i": "",
+        "o": "",
+        "p": "/",
+        "a": "",
+        "s": "",
+        "d": "",
+        "f": "",
+        "g": "",
+        "h": "",
+        "j": "",
+        "k": "",
+        "l": "",
+        ";": "",
+        "z": "",
+        "x": "",
+        "c": "",
+        "v": "",
+        "b": "",
+        "n": "",
+        "m": "",
+        ",": ",",
+        ".": ".",
+        "/": ";"
+      },
+      "lockedKeys": [
+        ",",
+        ".",
+        "/",
+        "p"
+      ],
+      "score": 105.65029077817663
     }
   ]
 }

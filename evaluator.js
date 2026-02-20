@@ -1,8 +1,6 @@
 var char_pinyin = {}; //空 结构体：拼音
 
 var schemes = { // 结构体：方案
-  '小鹤':'Q=iu,W=ei,R=uan er,T=ue ve,Y=un,U=sh,I=ch,O=uo,P=ie,S=ong iong,D=ai,F=en,G=eng,H=ang,J=an,K=ing uai,L=iang uang,Z=ou,X=ia ua,C=ao,V=zh ui,B=in,N=iao,M=ian',
-
   '双拼':'Q=iu,W=ei,E=er,R=uan,T=ue ve,Y=un,U=sh,I=ch,O=ou,P=ie,A=,S=ong iong,D=ai,F=en eng,G=ui,H=ang,J=an,K=uai,L=iang uang,FH=,Z=uo,X=ia ua,C=ao,V=zh,B=in ing,N=iao,M=ian,DH=,JH=,CH=',
 
   empty:'Q=,W=,E=,R=,T=,Y=,U=,I=,O=,P=,A=,S=,D=,F=,G=,H=,J=,K=,L=,FH=,Z=,X=,C=,V=,B=,N=,M=,DH=,JH=,CH=',
@@ -88,6 +86,71 @@ var vowel_keys = 'aoeiuv';
 var zero_sheng_fallback_letters = 'aoe';
 var no_swap_keys = '';
 var locked_keys = {};
+
+function is_iuv_key(key) {
+  return key == 'i' || key == 'u' || key == 'v';
+}
+
+function is_iuv_swap(key1, key2) {
+  return is_iuv_key(key1) && is_iuv_key(key2);
+}
+
+function py_has_iuv_vowel(py_value) {
+  var parts = String(py_value || '').trim().toLowerCase().split(' ');
+  for (var i = 0; i < parts.length; ++i) {
+    var t = parts[i].trim();
+    if (t == 'i' || t == 'u' || t == 'v') {
+      return true;
+    }
+  }
+  return false;
+}
+
+function tokens_have_iuv_vowel(tokens) {
+  if (tokens == null) {
+    return false;
+  }
+  for (var i = 0; i < tokens.length; ++i) {
+    var t = String(tokens[i] || '').trim().toLowerCase();
+    if (t == 'i' || t == 'u' || t == 'v') {
+      return true;
+    }
+  }
+  return false;
+}
+
+function has_restricted_sheng_tokens(value) {
+  var parts = (value || '').split(' ');
+  for (var i = 0; i < parts.length; ++i) {
+    var t = parts[i].trim().toLowerCase();
+    if (t == 'zh' || t == 'ch' || t == 'sh') {
+      return true;
+    }
+  }
+  return false;
+}
+
+function has_restricted_sheng_tokens_in_list(tokens) {
+  if (tokens == null) {
+    return false;
+  }
+  for (var i = 0; i < tokens.length; ++i) {
+    var t = String(tokens[i] || '').trim().toLowerCase();
+    if (t == 'zh' || t == 'ch' || t == 'sh') {
+      return true;
+    }
+  }
+  return false;
+}
+
+function has_restricted_sheng_tokens_in_combined(sm_value, py_value) {
+  var combined = (String(sm_value || '') + ' ' + String(py_value || '')).trim();
+  var sheng = split_tokens_by_type(combined).sheng;
+  if (sheng == null || sheng == '') {
+    return false;
+  }
+  return has_restricted_sheng_tokens_in_list(sheng.split(' '));
+}
 
 function is_consonant_letter(token) {
   return token.length == 1 && letters.includes(token) && !vowel_keys.includes(token);
@@ -3226,9 +3289,11 @@ function apply_swap_to_state(state, layer, key1, key2) {
     (letters.includes(key1) && sm1 == '' && py1 == '') ||
     (letters.includes(key2) && sm2 == '' && py2 == '');
   var either_has_vowel = split_yun_value(py1).vowels.length > 0 || split_yun_value(py2).vowels.length > 0;
+  var iuv_swap = py_has_iuv_vowel(py1) && py_has_iuv_vowel(py2);
+  var should_couple_by_vowel = either_has_vowel && !iuv_swap;
 
   if (layer == 'yun') {
-    if (either_empty_key || either_has_vowel) {
+    if (either_empty_key || should_couple_by_vowel) {
       state.sm_values[key1] = sm2;
       state.sm_values[key2] = sm1;
       state.py_values[key1] = py2;
@@ -3245,7 +3310,7 @@ function apply_swap_to_state(state, layer, key1, key2) {
   } else if (layer == 'sheng') {
     state.sm_values[key1] = sm2;
     state.sm_values[key2] = sm1;
-    if (either_empty_key || either_has_vowel) {
+    if (either_empty_key || should_couple_by_vowel) {
       state.py_values[key1] = py2;
       state.py_values[key2] = py1;
     }
@@ -3365,18 +3430,39 @@ function build_swap_context_from_state(layer, state) {
 function get_swap_token_sets(ctx, first, second) {
   var base_first_tokens = ctx.key_tokens[first];
   var base_second_tokens = ctx.key_tokens[second];
+  var iuv_swap = tokens_have_iuv_vowel(ctx.all_yun_tokens_by_key[first]) && tokens_have_iuv_vowel(ctx.all_yun_tokens_by_key[second]);
   var should_swap_all = ctx.key_is_symbol_by_key[first] || ctx.key_is_symbol_by_key[second] ||
     ctx.key_is_empty_by_key[first] || ctx.key_is_empty_by_key[second] ||
-    (ctx.layer == 'yun' && (ctx.yun_has_vowel_by_key[first] || ctx.yun_has_vowel_by_key[second]));
+    (ctx.layer == 'yun' && !iuv_swap && (ctx.yun_has_vowel_by_key[first] || ctx.yun_has_vowel_by_key[second]));
   var first_tokens = should_swap_all ? ctx.all_sheng_tokens_by_key[first].concat(ctx.all_yun_tokens_by_key[first]) : base_first_tokens;
   var second_tokens = should_swap_all ? ctx.all_sheng_tokens_by_key[second].concat(ctx.all_yun_tokens_by_key[second]) : base_second_tokens;
   var first_yun_tokens = null;
   var second_yun_tokens = null;
   var include_yun_for_sheng_swap = false;
-  if (!should_swap_all && ctx.layer == 'sheng' && (ctx.yun_has_vowel_by_key[first] || ctx.yun_has_vowel_by_key[second])) {
+  if (!should_swap_all && !iuv_swap && ctx.layer == 'sheng' && (ctx.yun_has_vowel_by_key[first] || ctx.yun_has_vowel_by_key[second])) {
     include_yun_for_sheng_swap = true;
     first_yun_tokens = ctx.yun_tokens_by_key[first];
     second_yun_tokens = ctx.yun_tokens_by_key[second];
+  }
+  var old_sheng1 = ctx.all_sheng_tokens_by_key[first] || [];
+  var old_sheng2 = ctx.all_sheng_tokens_by_key[second] || [];
+  var old_yun1 = ctx.all_yun_tokens_by_key[first] || [];
+  var old_yun2 = ctx.all_yun_tokens_by_key[second] || [];
+  var either_empty_key = ctx.key_is_symbol_by_key[first] || ctx.key_is_symbol_by_key[second] ||
+    ctx.key_is_empty_by_key[first] || ctx.key_is_empty_by_key[second];
+  var either_has_vowel = !!(ctx.yun_has_vowel_by_key && (ctx.yun_has_vowel_by_key[first] || ctx.yun_has_vowel_by_key[second]));
+  var should_couple_by_vowel = either_has_vowel && !iuv_swap;
+  var swap_sm = ctx.layer == 'sheng' || ctx.layer == 'both' || (ctx.layer == 'yun' && (either_empty_key || should_couple_by_vowel));
+  var swap_py = ctx.layer == 'yun' || ctx.layer == 'both' || (ctx.layer == 'sheng' && (either_empty_key || should_couple_by_vowel));
+  var new_sheng1 = swap_sm ? old_sheng2 : old_sheng1;
+  var new_sheng2 = swap_sm ? old_sheng1 : old_sheng2;
+  var new_yun1 = swap_py ? old_yun2 : old_yun1;
+  var new_yun2 = swap_py ? old_yun1 : old_yun2;
+  if (has_restricted_sheng_tokens_in_list(new_sheng1) && !tokens_have_iuv_vowel(new_yun1)) {
+    return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
+  }
+  if (has_restricted_sheng_tokens_in_list(new_sheng2) && !tokens_have_iuv_vowel(new_yun2)) {
+    return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
   }
   return {
     should_swap_all: should_swap_all,
@@ -3392,17 +3478,29 @@ function get_swap_token_sets_yun_only(ctx, first, second) {
   if (ctx == null) {
     return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
   }
-  if ('aeoiuv'.includes(first) || 'aeoiuv'.includes(second)) {
+  if ('aoe'.includes(first) || 'aoe'.includes(second)) {
     return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
   }
   if (ctx.key_is_symbol_by_key[first] || ctx.key_is_symbol_by_key[second] ||
       ctx.key_is_empty_by_key[first] || ctx.key_is_empty_by_key[second]) {
     return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
   }
+  var first_tokens = ctx.key_tokens[first] || [];
+  var second_tokens = ctx.key_tokens[second] || [];
+  var old_sheng1 = ctx.all_sheng_tokens_by_key[first] || [];
+  var old_sheng2 = ctx.all_sheng_tokens_by_key[second] || [];
+  var new_yun1 = second_tokens;
+  var new_yun2 = first_tokens;
+  if (has_restricted_sheng_tokens_in_list(old_sheng1) && !tokens_have_iuv_vowel(new_yun1)) {
+    return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
+  }
+  if (has_restricted_sheng_tokens_in_list(old_sheng2) && !tokens_have_iuv_vowel(new_yun2)) {
+    return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
+  }
   return {
     should_swap_all: false,
-    first_tokens: ctx.key_tokens[first] || [],
-    second_tokens: ctx.key_tokens[second] || [],
+    first_tokens: first_tokens,
+    second_tokens: second_tokens,
     include_yun_for_sheng_swap: false,
     first_yun_tokens: null,
     second_yun_tokens: null,
@@ -3895,53 +3993,11 @@ function generate_two_step_swap_suggestions(mode, baseline, total_hits, base_pin
 }
 
 function generate_swap_suggestions(layer, baseline, total_hits, base_pinyin_map) {
-  var layout = get_layout();
-  var prefix = (layer == 'yun') ? 'py_' : 'sm_';
-  var label = (layer == 'yun') ? '[韵]' : '[声]';
   var epsilon = 1e-9;
-
-  var field = get_key_field_values(prefix);
-  var key_values = field.key_values;
-  var key_tokens = field.key_tokens;
-  var all_sheng_tokens_by_key = get_key_field_values('sm_').key_tokens;
-  var all_yun_tokens_by_key = get_key_field_values('py_').key_tokens;
-  var key_is_symbol_by_key = {};
-  var key_is_empty_by_key = {};
-  for (var key in layout) {
-    key_is_symbol_by_key[key] = get_symbol_tag_for_key(key) != '';
-    key_is_empty_by_key[key] = letters.includes(key) &&
-      (all_sheng_tokens_by_key[key].length == 0 && all_yun_tokens_by_key[key].length == 0);
-  }
-  var yun_tokens_by_key = null;
-  var yun_has_vowel_by_key = null;
-  if (layer == 'sheng') {
-    yun_tokens_by_key = get_key_field_values('py_').key_tokens;
-    yun_has_vowel_by_key = {};
-    for (var key in layout) {
-      var has_vowel = false;
-      var tokens = yun_tokens_by_key[key];
-      for (var i = 0; i < tokens.length; ++i) {
-        if (is_vowel_token(tokens[i])) {
-          has_vowel = true;
-          break;
-        }
-      }
-      yun_has_vowel_by_key[key] = has_vowel;
-    }
-  } else if (layer == 'yun') {
-    yun_has_vowel_by_key = {};
-    for (var key in layout) {
-      var has_vowel = false;
-      var tokens = key_tokens[key];
-      for (var i = 0; i < tokens.length; ++i) {
-        if (is_vowel_token(tokens[i])) {
-          has_vowel = true;
-          break;
-        }
-      }
-      yun_has_vowel_by_key[key] = has_vowel;
-    }
-  }
+  var state0 = read_keyboard_state();
+  var ctx0 = build_swap_context_from_state(layer, state0);
+  var layout = ctx0.layout;
+  var label = (layer == 'yun') ? '[韵]' : '[声]';
 
   var pinyin_map = clone_map(base_pinyin_map);
   var suggestions = [];
@@ -3950,7 +4006,6 @@ function generate_swap_suggestions(layer, baseline, total_hits, base_pinyin_map)
     if (is_no_swap_key(first)) {
       continue;
     }
-    var base_first_tokens = key_tokens[first];
     for (var second in layout) {
       if (first >= second) {
         continue;
@@ -3958,45 +4013,24 @@ function generate_swap_suggestions(layer, baseline, total_hits, base_pinyin_map)
       if (is_no_swap_key(second)) {
         continue;
       }
-      var base_second_tokens = key_tokens[second];
-      var should_swap_all = key_is_symbol_by_key[first] || key_is_symbol_by_key[second] ||
-        key_is_empty_by_key[first] || key_is_empty_by_key[second] ||
-        (layer == 'yun' && (yun_has_vowel_by_key[first] || yun_has_vowel_by_key[second]));
-      var first_tokens = should_swap_all ? all_sheng_tokens_by_key[first].concat(all_yun_tokens_by_key[first]) : base_first_tokens;
-      var second_tokens = should_swap_all ? all_sheng_tokens_by_key[second].concat(all_yun_tokens_by_key[second]) : base_second_tokens;
-      if (first_tokens.length == 0 && second_tokens.length == 0) {
+      var swap_tokens = get_swap_token_sets(ctx0, first, second);
+      if (swap_tokens.first_tokens.length == 0 && swap_tokens.second_tokens.length == 0) {
         continue;
       }
 
-      var affected = {};
-      for (var i = 0; i < first_tokens.length; ++i) affected[first_tokens[i]] = true;
-      for (var i = 0; i < second_tokens.length; ++i) affected[second_tokens[i]] = true;
-      if (!should_swap_all && layer == 'sheng' && (yun_has_vowel_by_key[first] || yun_has_vowel_by_key[second])) {
-        var first_yun_tokens = yun_tokens_by_key[first];
-        var second_yun_tokens = yun_tokens_by_key[second];
-        for (var i = 0; i < first_yun_tokens.length; ++i) affected[first_yun_tokens[i]] = true;
-        for (var i = 0; i < second_yun_tokens.length; ++i) affected[second_yun_tokens[i]] = true;
-      }
-      for (var token in affected) {
-        pinyin_map[token] = swap_all_keys(pinyin_map[token], first, second);
-      }
-
-      var time = fast_evaluate_scheme(pinyin_map, sheng_yun_freq)
-        + fast_evaluate_scheme(pinyin_map, yun_sheng_freq);
+      apply_swap_to_pinyin_map(pinyin_map, first, second, swap_tokens);
+      var time = evaluate_pinyin_map(pinyin_map);
       if (time < baseline - epsilon) {
         var score = (baseline - time) / total_hits * 100;
-        var display1 = get_keycap_label_for_key(first) + '(' + key_values[first] + ')';
-        var display2 = get_keycap_label_for_key(second) + '(' + key_values[second] + ')';
+        var display1 = get_keycap_label_for_key(first) + '(' + ctx0.key_values[first] + ')';
+        var display2 = get_keycap_label_for_key(second) + '(' + ctx0.key_values[second] + ')';
         suggestions.push({
           score: score,
           text: score.toFixed(3) + '｜ ' + label + ' 交换 ' + display1 + ' 和 ' + display2,
           value: layer + '|' + first + '|' + second,
         });
       }
-
-      for (var token in affected) {
-        pinyin_map[token] = swap_all_keys(pinyin_map[token], first, second);
-      }
+      undo_swap_in_pinyin_map(pinyin_map, first, second, swap_tokens);
     }
   }
   return suggestions;
@@ -5201,9 +5235,44 @@ function apply_swap_to_keyboard(layer, key1, key2, should_evaluate) {
     (letters.includes(key1) && sm1 == '' && py1 == '') ||
     (letters.includes(key2) && sm2 == '' && py2 == '');
   var either_has_vowel = split_yun_value(py1).vowels.length > 0 || split_yun_value(py2).vowels.length > 0;
+  var iuv_swap = py_has_iuv_vowel(py1) && py_has_iuv_vowel(py2);
+  var should_couple_by_vowel = either_has_vowel && !iuv_swap;
+  var new_sm1 = sm1;
+  var new_sm2 = sm2;
+  var new_py1 = py1;
+  var new_py2 = py2;
+  if (layer == 'yun') {
+    if (either_empty_key || should_couple_by_vowel) {
+      new_sm1 = sm2;
+      new_sm2 = sm1;
+      new_py1 = py2;
+      new_py2 = py1;
+    } else {
+      new_py1 = py2;
+      new_py2 = py1;
+    }
+  } else if (layer == 'sheng') {
+    new_sm1 = sm2;
+    new_sm2 = sm1;
+    if (either_empty_key || should_couple_by_vowel) {
+      new_py1 = py2;
+      new_py2 = py1;
+    }
+  } else if (layer == 'both') {
+    new_sm1 = sm2;
+    new_sm2 = sm1;
+    new_py1 = py2;
+    new_py2 = py1;
+  }
+  if (has_restricted_sheng_tokens_in_combined(new_sm1, new_py1) && !py_has_iuv_vowel(new_py1)) {
+    return;
+  }
+  if (has_restricted_sheng_tokens_in_combined(new_sm2, new_py2) && !py_has_iuv_vowel(new_py2)) {
+    return;
+  }
 
   if (layer == 'yun') {
-    if (either_empty_key || either_has_vowel) {
+    if (either_empty_key || should_couple_by_vowel) {
       document.getElementById(sm_id_1).value = sm2;
       document.getElementById(sm_id_2).value = sm1;
       document.getElementById(py_id_1).value = py2;
@@ -5218,7 +5287,7 @@ function apply_swap_to_keyboard(layer, key1, key2, should_evaluate) {
   } else if (layer == 'sheng') {
     document.getElementById(sm_id_1).value = sm2;
     document.getElementById(sm_id_2).value = sm1;
-    if (either_empty_key || either_has_vowel) {
+    if (either_empty_key || should_couple_by_vowel) {
       document.getElementById(py_id_1).value = py2;
       document.getElementById(py_id_2).value = py1;
     }
