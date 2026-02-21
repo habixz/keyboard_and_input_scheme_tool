@@ -208,6 +208,38 @@ function split_yun_value(value) {
   return {vowels: vowels, others: others};
 }
 
+function is_aoe_key(key) {
+  var k = String(key || '').trim().toLowerCase();
+  return k.length == 1 && zero_sheng_fallback_letters.includes(k);
+}
+
+function has_vowel_token_in_value(value) {
+  var parts = String(value || '').split(' ');
+  for (var i = 0; i < parts.length; ++i) {
+    var t = parts[i].trim().toLowerCase();
+    if (t == '') {
+      continue;
+    }
+    if (is_vowel_token(t)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function tokens_have_vowel(tokens) {
+  if (tokens == null) {
+    return false;
+  }
+  for (var i = 0; i < tokens.length; ++i) {
+    var t = String(tokens[i] || '').trim().toLowerCase();
+    if (is_vowel_token(t)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function join_tokens(tokens) {
   return (tokens || []).join(' ').trim();
 }
@@ -1379,6 +1411,8 @@ var dragging_saved_layout_id = null;
 var drag_over_saved_layout_id = null;
 var last_saved_layout_drag_end_ms = 0;
 var drag_over_saved_layout_insert_before = true;
+var saved_layout_name_scroll_left = 0;
+var saved_layout_name_scroll_max = 0;
 
 function persist_layout_library_order(ids, keep_selected_id) {
   if (!Array.isArray(ids) || ids.length == 0) {
@@ -1489,6 +1523,15 @@ function refresh_saved_layouts_ui(selected_id) {
   if (list == null) {
     return;
   }
+  var scrollbar = document.getElementById('saved-layout-name-scrollbar');
+  var scrollbar_inner = document.getElementById('saved-layout-name-scrollbar-inner');
+  if (scrollbar != null && scrollbar._saved_layout_scroll_init !== true) {
+    scrollbar._saved_layout_scroll_init = true;
+    scrollbar.onscroll = function() {
+      saved_layout_name_scroll_left = scrollbar.scrollLeft || 0;
+      list.style.setProperty('--saved-layout-name-scroll-left', (-saved_layout_name_scroll_left) + 'px');
+    };
+  }
   var items = layout_library_entries || [];
   while (list.firstChild) {
     list.removeChild(list.firstChild);
@@ -1496,11 +1539,26 @@ function refresh_saved_layouts_ui(selected_id) {
   if (items.length == 0) {
     selected_saved_layout_id = null;
     update_undo_replace_button();
+    if (scrollbar != null) {
+      scrollbar.style.display = 'none';
+    }
+    if (scrollbar != null) {
+      scrollbar.scrollLeft = 0;
+    }
+    saved_layout_name_scroll_left = 0;
+    saved_layout_name_scroll_max = 0;
+    list.style.setProperty('--saved-layout-name-scroll-left', '0px');
+    if (scrollbar_inner != null) {
+      scrollbar_inner.style.width = '0px';
+    }
     var empty = document.createElement('div');
     empty.className = 'saved-layout-empty';
     empty.innerHTML = layout_library_load_error != '' ? layout_library_load_error : '未保存';
     list.appendChild(empty);
     return;
+  }
+  if (scrollbar != null) {
+    scrollbar.style.display = 'block';
   }
   if (selected_id != null) {
     selected_saved_layout_id = String(selected_id);
@@ -1527,13 +1585,16 @@ function refresh_saved_layouts_ui(selected_id) {
     if (selected_saved_layout_id != null && String(selected_saved_layout_id) == id) {
       row.classList.add('saved-layout-item-selected');
     }
+    var name_wrap = document.createElement('div');
+    name_wrap.className = 'saved-layout-name-wrap';
     var name = document.createElement('span');
     name.className = 'saved-layout-name';
     name.innerHTML = (it.name || '未命名');
     var score = document.createElement('span');
     score.className = 'saved-layout-score';
     score.innerHTML = (it.score == null) ? '' : (Number(it.score).toFixed(2));
-    row.appendChild(name);
+    name_wrap.appendChild(name);
+    row.appendChild(name_wrap);
     row.appendChild(score);
     (function(layout_id) {
       row.onclick = function() {
@@ -1624,6 +1685,22 @@ function refresh_saved_layouts_ui(selected_id) {
       };
     })(id, row);
     list.appendChild(row);
+  }
+  if (scrollbar != null && scrollbar_inner != null) {
+    var max_name_width = 0;
+    var name_els = list.querySelectorAll('.saved-layout-name');
+    for (var i = 0; i < name_els.length; ++i) {
+      max_name_width = Math.max(max_name_width, name_els[i].scrollWidth || 0);
+    }
+    var wrap_el = list.querySelector('.saved-layout-name-wrap');
+    var wrap_width = (wrap_el != null) ? (wrap_el.clientWidth || 0) : 0;
+    saved_layout_name_scroll_max = Math.max(0, max_name_width - wrap_width);
+    scrollbar_inner.style.width = (scrollbar.clientWidth + saved_layout_name_scroll_max) + 'px';
+    if (saved_layout_name_scroll_left > saved_layout_name_scroll_max) {
+      saved_layout_name_scroll_left = saved_layout_name_scroll_max;
+    }
+    scrollbar.scrollLeft = saved_layout_name_scroll_left;
+    list.style.setProperty('--saved-layout-name-scroll-left', (-saved_layout_name_scroll_left) + 'px');
   }
   list.ondragover = function(e) {
     if (e != null) {
@@ -3288,7 +3365,9 @@ function apply_swap_to_state(state, layer, key1, key2) {
   var either_empty_key = either_has_symbol ||
     (letters.includes(key1) && sm1 == '' && py1 == '') ||
     (letters.includes(key2) && sm2 == '' && py2 == '');
-  var either_has_vowel = split_yun_value(py1).vowels.length > 0 || split_yun_value(py2).vowels.length > 0;
+  var either_has_vowel = split_yun_value(py1).vowels.length > 0 || split_yun_value(py2).vowels.length > 0 ||
+    has_vowel_token_in_value(sm1) || has_vowel_token_in_value(sm2) ||
+    is_aoe_key(key1) || is_aoe_key(key2);
   var iuv_swap = py_has_iuv_vowel(py1) && py_has_iuv_vowel(py2);
   var should_couple_by_vowel = either_has_vowel && !iuv_swap;
 
@@ -3333,6 +3412,12 @@ function apply_swap_to_state(state, layer, key1, key2) {
 }
 
 function apply_swap_to_state_yun_only(state, key1, key2) {
+  if (is_iuv_swap(key1, key2)) {
+    var sm1 = state.sm_values[key1];
+    state.sm_values[key1] = state.sm_values[key2];
+    state.sm_values[key2] = sm1;
+    return;
+  }
   var py1 = state.py_values[key1];
   state.py_values[key1] = state.py_values[key2];
   state.py_values[key2] = py1;
@@ -3385,28 +3470,16 @@ function build_swap_context_from_state(layer, state) {
     yun_tokens_by_key = build_key_field_values_from_state(state, 'py_').key_tokens;
     yun_has_vowel_by_key = {};
     for (var key in layout) {
-      var has_vowel = false;
-      var tokens = yun_tokens_by_key[key];
-      for (var i = 0; i < tokens.length; ++i) {
-        if (is_vowel_token(tokens[i])) {
-          has_vowel = true;
-          break;
-        }
-      }
-      yun_has_vowel_by_key[key] = has_vowel;
+      yun_has_vowel_by_key[key] = tokens_have_vowel(yun_tokens_by_key[key]) ||
+        tokens_have_vowel(all_sheng_tokens_by_key[key]) ||
+        is_aoe_key(key);
     }
   } else if (layer == 'yun') {
     yun_has_vowel_by_key = {};
     for (var key in layout) {
-      var has_vowel = false;
-      var tokens = key_tokens[key];
-      for (var i = 0; i < tokens.length; ++i) {
-        if (is_vowel_token(tokens[i])) {
-          has_vowel = true;
-          break;
-        }
-      }
-      yun_has_vowel_by_key[key] = has_vowel;
+      yun_has_vowel_by_key[key] = tokens_have_vowel(key_tokens[key]) ||
+        tokens_have_vowel(all_sheng_tokens_by_key[key]) ||
+        is_aoe_key(key);
     }
   }
 
@@ -3484,6 +3557,31 @@ function get_swap_token_sets_yun_only(ctx, first, second) {
   if (ctx.key_is_symbol_by_key[first] || ctx.key_is_symbol_by_key[second] ||
       ctx.key_is_empty_by_key[first] || ctx.key_is_empty_by_key[second]) {
     return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
+  }
+  if (is_iuv_swap(first, second)) {
+    var old_sheng1 = ctx.all_sheng_tokens_by_key[first] || [];
+    var old_sheng2 = ctx.all_sheng_tokens_by_key[second] || [];
+    if (old_sheng1.length == 0 && old_sheng2.length == 0) {
+      return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
+    }
+    var old_yun1 = ctx.all_yun_tokens_by_key[first] || [];
+    var old_yun2 = ctx.all_yun_tokens_by_key[second] || [];
+    var new_sheng1 = old_sheng2;
+    var new_sheng2 = old_sheng1;
+    if (has_restricted_sheng_tokens_in_list(new_sheng1) && !tokens_have_iuv_vowel(old_yun1)) {
+      return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
+    }
+    if (has_restricted_sheng_tokens_in_list(new_sheng2) && !tokens_have_iuv_vowel(old_yun2)) {
+      return { should_swap_all: false, first_tokens: [], second_tokens: [], include_yun_for_sheng_swap: false, first_yun_tokens: null, second_yun_tokens: null };
+    }
+    return {
+      should_swap_all: false,
+      first_tokens: old_sheng1,
+      second_tokens: old_sheng2,
+      include_yun_for_sheng_swap: false,
+      first_yun_tokens: null,
+      second_yun_tokens: null,
+    };
   }
   var first_tokens = ctx.key_tokens[first] || [];
   var second_tokens = ctx.key_tokens[second] || [];
@@ -5234,7 +5332,9 @@ function apply_swap_to_keyboard(layer, key1, key2, should_evaluate) {
   var either_empty_key = either_has_symbol ||
     (letters.includes(key1) && sm1 == '' && py1 == '') ||
     (letters.includes(key2) && sm2 == '' && py2 == '');
-  var either_has_vowel = split_yun_value(py1).vowels.length > 0 || split_yun_value(py2).vowels.length > 0;
+  var either_has_vowel = split_yun_value(py1).vowels.length > 0 || split_yun_value(py2).vowels.length > 0 ||
+    has_vowel_token_in_value(sm1) || has_vowel_token_in_value(sm2) ||
+    is_aoe_key(key1) || is_aoe_key(key2);
   var iuv_swap = py_has_iuv_vowel(py1) && py_has_iuv_vowel(py2);
   var should_couple_by_vowel = either_has_vowel && !iuv_swap;
   var new_sm1 = sm1;
